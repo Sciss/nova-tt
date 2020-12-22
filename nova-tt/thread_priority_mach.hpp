@@ -53,6 +53,9 @@ inline std::pair<int, int> thread_priority_interval(void)
 
 inline bool thread_set_priority(int priority)
 {
+#ifdef __EMSCRIPTEN__
+    return true;    // unsupported operation, make it a no-op
+#else
     /* for non-realtime priorities, we can use  */
     pthread_t this_thread = pthread_self();
 
@@ -62,6 +65,7 @@ inline bool thread_set_priority(int priority)
     int status = pthread_setschedparam(this_thread, SCHED_OTHER, &parm);
 
     return status == 0;
+#endif
 }
 
 inline bool thread_set_priority_rt(int period, int computation, int constraint, bool preemptible)

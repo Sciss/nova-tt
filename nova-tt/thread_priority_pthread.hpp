@@ -52,13 +52,20 @@ namespace detail
 
 inline std::pair<int, int> thread_priority_interval(int policy)
 {
+#ifdef __EMSCRIPTEN__
+    return std::make_pair(0, 0);    // unsupported operation
+#else
     int minimum = sched_get_priority_min(policy);
     int maximum = sched_get_priority_max(policy);
     return std::make_pair(minimum, maximum);
+#endif
 }
 
 inline bool thread_set_priority(int policy, int priority)
 {
+#ifdef __EMSCRIPTEN__
+    return true;    // unsupported operation, make it a no-op
+#else
     pthread_t this_thread = pthread_self();
 
     struct sched_param parm;
@@ -67,6 +74,7 @@ inline bool thread_set_priority(int policy, int priority)
     int status = pthread_setschedparam(this_thread, policy, &parm);
 
     return status == 0;
+#endif
 }
 
 } /* namespace detail */
